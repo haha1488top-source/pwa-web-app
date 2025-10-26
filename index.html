@@ -118,31 +118,21 @@
         window.addEventListener('beforeunload', (e) => {
             e.preventDefault();
             e.returnValue = 'Гра буде втрачена! Точно хочеш піти?';
-            return 'Гра буде втрачена! Точно хочеш піти?';
         });
 
-        // Автозбереження кожні 2 секунди
+        // Автозбереження
         setInterval(() => {
             localStorage.setItem('clickCount', count);
-            localStorage.setItem('lastSave', new Date().toLocaleTimeString());
-        }, 2000);
+        }, 1000);
 
         // Ініціалізація
         updateCounter();
         statusElement.textContent = 'Гра завантажена! Тисни на картинку 👆';
 
-        // Service Worker для офлайн роботи
+        // Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(function(registration) {
-                        console.log('SW registered: ', registration);
-                        statusElement.textContent += ' | PWA активовано 🚀';
-                    })
-                    .catch(function(error) {
-                        console.log('SW registration failed: ', error);
-                        statusElement.textContent += ' | PWA помилка ❌';
-                    });
+                navigator.serviceWorker.register('./service-worker.js');
             });
         }
     </script>
