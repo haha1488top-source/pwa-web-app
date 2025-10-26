@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0000ff">
     <title>Клікер для телефона</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
@@ -112,16 +114,37 @@
             }, 100);
         });
 
-        // Ініціалізація
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCounter();
-            statusElement.textContent = 'Гра завантажена! Тисни на картинку 👆';
+        // Заборонити оновлення сторінки
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = 'Гра буде втрачена! Точно хочеш піти?';
+            return 'Гра буде втрачена! Точно хочеш піти?';
         });
 
-        // Спрощена офлайн робота через LocalStorage
-        window.addEventListener('beforeunload', () => {
+        // Автозбереження кожні 2 секунди
+        setInterval(() => {
             localStorage.setItem('clickCount', count);
-        });
+            localStorage.setItem('lastSave', new Date().toLocaleTimeString());
+        }, 2000);
+
+        // Ініціалізація
+        updateCounter();
+        statusElement.textContent = 'Гра завантажена! Тисни на картинку 👆';
+
+        // Service Worker для офлайн роботи
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                        statusElement.textContent += ' | PWA активовано 🚀';
+                    })
+                    .catch(function(error) {
+                        console.log('SW registration failed: ', error);
+                        statusElement.textContent += ' | PWA помилка ❌';
+                    });
+            });
+        }
     </script>
 </body>
 </html>
