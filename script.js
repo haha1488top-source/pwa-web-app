@@ -1,4 +1,4 @@
-let count = localStorage.getItem('clickCount') || 0;
+let count = parseInt(localStorage.getItem('clickCount')) || 0;
 const counterElement = document.getElementById('count');
 const clickerImg = document.getElementById('clicker');
 
@@ -8,20 +8,34 @@ function updateCounter() {
 }
 
 function resetCounter() {
-    count = 0;
-    updateCounter();
+    if(confirm('Скинути рахунок?')) {
+        count = 0;
+        updateCounter();
+    }
 }
 
 clickerImg.addEventListener('click', () => {
     count++;
     updateCounter();
     
-    // Додаємо анімацію
+    // Анімація
     clickerImg.style.transform = 'scale(0.95)';
     setTimeout(() => {
         clickerImg.style.transform = 'scale(1)';
     }, 100);
 });
 
+// Перевірка офлайн режиму
+window.addEventListener('online', () => {
+    console.log('Онлайн!');
+});
+
+window.addEventListener('offline', () => {
+    console.log('Офлайн! Але гра працює!');
+});
+
 // Ініціалізація
-updateCounter();
+document.addEventListener('DOMContentLoaded', () => {
+    updateCounter();
+    console.log('Гра завантажена!');
+});
