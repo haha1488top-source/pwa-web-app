@@ -28,7 +28,7 @@
         .counter {
             font-size: 42px;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             text-align: center;
         }
@@ -40,27 +40,41 @@
             transition: transform 0.1s;
             user-select: none;
             border-radius: 20px;
+            margin-bottom: 15px;
         }
 
         .clicker-img:active {
             transform: scale(0.9);
         }
 
+        .shop-btn {
+            margin: 10px 0;
+            padding: 12px 25px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 80%;
+            max-width: 280px;
+        }
+
         .reset-btn {
-            margin-top: 30px;
-            padding: 15px 30px;
-            font-size: 20px;
+            margin-top: 10px;
+            padding: 12px 25px;
+            font-size: 18px;
             background: #ff5722;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             width: 80%;
-            max-width: 300px;
+            max-width: 280px;
         }
 
         .status {
-            margin-top: 20px;
+            margin-top: 15px;
             color: white;
             font-size: 16px;
             text-align: center;
@@ -70,8 +84,12 @@
 <body>
     <div class="counter">Кліків: <span id="count">0</span></div>
     <img src="Img/pin_dead_box.png" class="clicker-img" id="clicker" alt="Клікер">
+    <button class="shop-btn" onclick="openShop()">
+        <img src="Img/spray.png" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px;" alt="Магазин">
+        Магазин
+    </button>
     <button class="reset-btn" onclick="resetCounter()">Скинути</button>
-    <div class="status" id="status">Готово до гри! 🎮</div>
+    <div class="status" id="status">Гра завантажена! Тисни на картинку 👆</div>
 
     <script>
         let count = parseInt(localStorage.getItem('clickCount')) || 0;
@@ -89,6 +107,11 @@
                 count = 0;
                 updateCounter();
             }
+        }
+
+        function openShop() {
+            alert('Магазин відкрито! Тут можна купити покращення.');
+            // Тут буде функціонал магазину
         }
 
         // Для телефона - обробка тачів
