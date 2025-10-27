@@ -6,6 +6,11 @@
     <meta name="theme-color" content="#0000ff">
     <title>Клікер для телефона</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="Img/pin_dead_box.png">
+    <link rel="apple-touch-icon" href="Img/pin_dead_box.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Клікер">
     <style>
         * {
             margin: 0;
@@ -123,9 +128,27 @@
             text-align: center;
             cursor: pointer;
         }
+
+        .install-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            font-size: 12px;
+            background: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <!-- Кнопка встановлення PWA -->
+    <button class="install-btn" onclick="installPWA()" id="installBtn">📱 Додати</button>
+
     <!-- Головна сцена -->
     <div class="scene main-scene">
         <div class="counter">Кліків: <span id="count">0</span></div>
@@ -155,6 +178,7 @@
             doubleClick: false,
             megaClick: false
         };
+        let deferredPrompt;
 
         const counterElement = document.getElementById('count');
         const clickerImg = document.getElementById('clicker');
@@ -162,6 +186,7 @@
         const shopScene = document.getElementById('shopScene');
         const mainScene = document.querySelector('.main-scene');
         const shopCountElement = document.getElementById('shopCount');
+        const installBtn = document.getElementById('installBtn');
 
         function updateCounter() {
             counterElement.textContent = count;
@@ -222,6 +247,25 @@
                     count += 1;
                     updateCounter();
                 }, 1000);
+            }
+        }
+
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
             }
         }
 
