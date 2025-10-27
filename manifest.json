@@ -1,21 +1,26 @@
 {
     "name": "Клікер PWA",
     "short_name": "Клікер",
-    "description": "Проста гра-клікер з офлайн режимом",
-    "start_url": "/",
+    "description": "Гра-клікер з магазином покращень",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#667eea",
     "theme_color": "#0000ff",
+    "orientation": "portrait",
+    "scope": "./",
+    "categories": ["games", "entertainment"],
     "icons": [
         {
             "src": "Img/pin_dead_box.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
             "src": "Img/pin_dead_box.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ]
 }
