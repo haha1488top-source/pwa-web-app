@@ -31,6 +31,10 @@
             transition: background 0.5s ease;
         }
 
+        body.shop-open {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+        }
+
         .scene {
             display: flex;
             flex-direction: column;
@@ -96,12 +100,11 @@
 
         /* Стилі для магазину */
         .shop-scene {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
             display: none;
         }
 
         .back-btn {
-            margin: 10px 0;
+            margin: 20px 0;
             padding: 12px 25px;
             font-size: 18px;
             background: #2196F3;
@@ -116,17 +119,27 @@
         .shop-items {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 300px;
         }
 
         .shop-item {
-            padding: 15px;
+            padding: 20px;
             background: rgba(255,255,255,0.2);
-            border-radius: 10px;
+            border-radius: 15px;
             color: white;
             text-align: center;
             cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .shop-item:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
         }
 
         .install-btn {
@@ -150,7 +163,7 @@
     <button class="install-btn" onclick="installPWA()" id="installBtn">📱 Додати</button>
 
     <!-- Головна сцена -->
-    <div class="scene main-scene">
+    <div class="scene main-scene" id="mainScene">
         <div class="counter">Кліків: <span id="count">0</span></div>
         <img src="Img/pin_dead_box.png" class="clicker-img" id="clicker" alt="Клікер">
         <button class="shop-btn" onclick="openShop()">Магазин</button>
@@ -160,18 +173,18 @@
 
     <!-- Сцена магазину -->
     <div class="scene shop-scene" id="shopScene">
-        <div class="counter">Магазин</div>
+        <div class="counter">🏪 Магазин</div>
         <div class="shop-items">
-            <div class="shop-item" onclick="buyUpgrade('autoClick')">Автоклікер - 100 кліків</div>
-            <div class="shop-item" onclick="buyUpgrade('doubleClick')">Подвійний клік - 200 кліків</div>
-            <div class="shop-item" onclick="buyUpgrade('megaClick')">Мега клік - 500 кліків</div>
+            <div class="shop-item" onclick="buyUpgrade('autoClick')">🤖 Автоклікер<br><small>100 кліків</small></div>
+            <div class="shop-item" onclick="buyUpgrade('doubleClick')">⚡ Подвійний клік<br><small>200 кліків</small></div>
+            <div class="shop-item" onclick="buyUpgrade('megaClick')">💥 Мега клік<br><small>500 кліків</small></div>
         </div>
-        <button class="back-btn" onclick="closeShop()">Назад</button>
+        <button class="back-btn" onclick="closeShop()">⬅️ Назад до гри</button>
         <div class="status">Твої кліків: <span id="shopCount">0</span></div>
     </div>
 
     <script>
-        // Глобальні змінні - винесені в самий верх
+        // Глобальні змінні
         let count = parseInt(localStorage.getItem('clickCount')) || 0;
         let upgrades = JSON.parse(localStorage.getItem('gameUpgrades')) || {
             autoClick: false,
@@ -184,7 +197,7 @@
         const clickerImg = document.getElementById('clicker');
         const statusElement = document.getElementById('status');
         const shopScene = document.getElementById('shopScene');
-        const mainScene = document.querySelector('.main-scene');
+        const mainScene = document.getElementById('mainScene');
         const shopCountElement = document.getElementById('shopCount');
         const installBtn = document.getElementById('installBtn');
 
@@ -206,13 +219,13 @@
         function openShop() {
             mainScene.style.display = 'none';
             shopScene.style.display = 'flex';
-            document.body.classList.add('shop-scene');
+            document.body.classList.add('shop-open');
         }
 
         function closeShop() {
             shopScene.style.display = 'none';
             mainScene.style.display = 'flex';
-            document.body.classList.remove('shop-scene');
+            document.body.classList.remove('shop-open');
         }
 
         function buyUpgrade(type) {
@@ -222,15 +235,17 @@
                 upgrades[type] = true;
                 updateCounter();
                 localStorage.setItem('gameUpgrades', JSON.stringify(upgrades));
-                alert('Покращення куплено!');
+                alert('🎉 Покращення куплено!');
+                if (type === 'autoClick') {
+                    startAutoClicker();
+                }
             } else if (upgrades[type]) {
-                alert('Вже куплено!');
+                alert('ℹ️ Вже куплено!');
             } else {
-                alert('Недостатньо кліків!');
+                alert('❌ Недостатньо кліків!');
             }
         }
 
-        // Обробка кліків з урахуванням покращень
         function handleClick() {
             let clickValue = 1;
             if (upgrades.doubleClick) clickValue *= 2;
@@ -240,7 +255,6 @@
             updateCounter();
         }
 
-        // Автоклікер
         function startAutoClicker() {
             if (upgrades.autoClick) {
                 setInterval(() => {
@@ -269,7 +283,7 @@
             }
         }
 
-        // Для телефона - обробка тачів
+        // Обробка кліків
         clickerImg.addEventListener('touchstart', (e) => {
             e.preventDefault();
             handleClick();
@@ -281,7 +295,6 @@
             clickerImg.style.transform = 'scale(1)';
         });
 
-        // Для комп'ютера
         clickerImg.addEventListener('click', () => {
             handleClick();
             clickerImg.style.transform = 'scale(0.9)';
@@ -307,7 +320,7 @@
         startAutoClicker();
         statusElement.textContent = 'Гра завантажена! Тисни на картинку 👆';
 
-        // Service Worker для офлайн роботи
+        // Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('./service-worker.js');
