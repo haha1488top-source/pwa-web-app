@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clicker-v5';
+const CACHE_NAME = 'clicker-v6';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,10 +7,10 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
   );
 });
 
