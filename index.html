@@ -23,6 +23,15 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             touch-action: manipulation;
+            transition: background 0.5s ease;
+        }
+
+        .scene {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .counter {
@@ -49,12 +58,12 @@
 
         .shop-btn {
             margin: 10px 0;
-            padding: 12px 25px;
+            padding: 15px 30px;
             font-size: 18px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             width: 80%;
             max-width: 280px;
@@ -79,46 +88,147 @@
             font-size: 16px;
             text-align: center;
         }
+
+        /* Стилі для магазину */
+        .shop-scene {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            display: none;
+        }
+
+        .back-btn {
+            margin: 10px 0;
+            padding: 12px 25px;
+            font-size: 18px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 80%;
+            max-width: 280px;
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .shop-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="counter">Кліків: <span id="count">0</span></div>
-    <img src="Img/pin_dead_box.png" class="clicker-img" id="clicker" alt="Клікер">
-    <button class="shop-btn" onclick="openShop()">
-        <img src="Img/spray.png" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px;" alt="Магазин">
-        Магазин
-    </button>
-    <button class="reset-btn" onclick="resetCounter()">Скинути</button>
-    <div class="status" id="status">Гра завантажена! Тисни на картинку 👆</div>
+    <!-- Головна сцена -->
+    <div class="scene main-scene">
+        <div class="counter">Кліків: <span id="count">0</span></div>
+        <img src="Img/pin_dead_box.png" class="clicker-img" id="clicker" alt="Клікер">
+        <button class="shop-btn" onclick="openShop()">Магазин</button>
+        <button class="reset-btn" onclick="resetCounter()">Скинути</button>
+        <div class="status" id="status">Гра завантажена! Тисни на картинку 👆</div>
+    </div>
+
+    <!-- Сцена магазину -->
+    <div class="scene shop-scene" id="shopScene">
+        <div class="counter">Магазин</div>
+        <div class="shop-items">
+            <div class="shop-item" onclick="buyUpgrade('autoClick')">Автоклікер - 100 кліків</div>
+            <div class="shop-item" onclick="buyUpgrade('doubleClick')">Подвійний клік - 200 кліків</div>
+            <div class="shop-item" onclick="buyUpgrade('megaClick')">Мега клік - 500 кліків</div>
+        </div>
+        <button class="back-btn" onclick="closeShop()">Назад</button>
+        <div class="status">Твої кліків: <span id="shopCount">0</span></div>
+    </div>
 
     <script>
+        // Глобальні змінні - винесені в самий верх
         let count = parseInt(localStorage.getItem('clickCount')) || 0;
+        let upgrades = JSON.parse(localStorage.getItem('gameUpgrades')) || {
+            autoClick: false,
+            doubleClick: false,
+            megaClick: false
+        };
+
         const counterElement = document.getElementById('count');
         const clickerImg = document.getElementById('clicker');
         const statusElement = document.getElementById('status');
+        const shopScene = document.getElementById('shopScene');
+        const mainScene = document.querySelector('.main-scene');
+        const shopCountElement = document.getElementById('shopCount');
 
         function updateCounter() {
             counterElement.textContent = count;
+            shopCountElement.textContent = count;
             localStorage.setItem('clickCount', count);
         }
 
         function resetCounter() {
             if(confirm('Скинути рахунок?')) {
                 count = 0;
+                upgrades = { autoClick: false, doubleClick: false, megaClick: false };
                 updateCounter();
+                localStorage.setItem('gameUpgrades', JSON.stringify(upgrades));
             }
         }
 
         function openShop() {
-            alert('Магазин відкрито! Тут можна купити покращення.');
-            // Тут буде функціонал магазину
+            mainScene.style.display = 'none';
+            shopScene.style.display = 'flex';
+            document.body.classList.add('shop-scene');
+        }
+
+        function closeShop() {
+            shopScene.style.display = 'none';
+            mainScene.style.display = 'flex';
+            document.body.classList.remove('shop-scene');
+        }
+
+        function buyUpgrade(type) {
+            const costs = { autoClick: 100, doubleClick: 200, megaClick: 500 };
+            if (count >= costs[type] && !upgrades[type]) {
+                count -= costs[type];
+                upgrades[type] = true;
+                updateCounter();
+                localStorage.setItem('gameUpgrades', JSON.stringify(upgrades));
+                alert('Покращення куплено!');
+            } else if (upgrades[type]) {
+                alert('Вже куплено!');
+            } else {
+                alert('Недостатньо кліків!');
+            }
+        }
+
+        // Обробка кліків з урахуванням покращень
+        function handleClick() {
+            let clickValue = 1;
+            if (upgrades.doubleClick) clickValue *= 2;
+            if (upgrades.megaClick) clickValue *= 5;
+            
+            count += clickValue;
+            updateCounter();
+        }
+
+        // Автоклікер
+        function startAutoClicker() {
+            if (upgrades.autoClick) {
+                setInterval(() => {
+                    count += 1;
+                    updateCounter();
+                }, 1000);
+            }
         }
 
         // Для телефона - обробка тачів
         clickerImg.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            count++;
-            updateCounter();
+            handleClick();
             clickerImg.style.transform = 'scale(0.9)';
         });
 
@@ -129,8 +239,7 @@
 
         // Для комп'ютера
         clickerImg.addEventListener('click', () => {
-            count++;
-            updateCounter();
+            handleClick();
             clickerImg.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 clickerImg.style.transform = 'scale(1)';
@@ -146,13 +255,15 @@
         // Автозбереження
         setInterval(() => {
             localStorage.setItem('clickCount', count);
+            localStorage.setItem('gameUpgrades', JSON.stringify(upgrades));
         }, 1000);
 
         // Ініціалізація
         updateCounter();
+        startAutoClicker();
         statusElement.textContent = 'Гра завантажена! Тисни на картинку 👆';
 
-        // Service Worker (без повідомлень про помилки)
+        // Service Worker для офлайн роботи
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('./service-worker.js');
